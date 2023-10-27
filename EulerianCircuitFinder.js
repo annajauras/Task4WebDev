@@ -2,25 +2,25 @@
 
 //array that will contain lines of adjacency matrix
 adjacencyArray = [];
-//variable that will contain the user inputed number of nodes in graph
+//variable that will contain the user inputted number of nodes in graph
 degreeOfNodes = 0;
 //if graph is eulerian
 eulerian = true;
 //when set to true, continues algorithmic process
 continueAlgorithm = true;
-//contains our result! The degrees in the graph that must be walked in a eulerian circuit
+//contains our result! The degrees in the graph that must be walked in a Eulerian circuit
 eulerianCircuit = [1];
-//adjusts where to add next nodes in eulerian circuit if a new point is chosen in Hierholzers algorithm
+//adjusts where to add next nodes in Eulerian circuit if a new point is chosen in Hierholzers algorithm
 insertPlace = -1;
-//set to which node Hierholzers algorithm begins in each cycle
+//set to which node Hierholzer's algorithm begins in each cycle
 startingNode = 0;
 //index of array that will be adjusted or accessed
 currentRow = 0;
 //the node previously added to eulerianCircuit
 previousNode = 0;
-//changes when a eulerian walk is complete
+//changes when a Eulerian walk is complete
 startingNodeChanged = false;
-//contains indexes in eulerian circuit where previousNode exists
+//contains indexes in Eulerian circuit where previousNode exists
 previousNodeIndexes = [];
 //contains nodes that have not already been fully visited
 availableStartingNodes = [];
@@ -41,7 +41,7 @@ for (i = 1; i <= numberOfNodes; i++) {
   );
   //splits input into array format elements are strings
   arrayRow = nextRowInput.split(" ");
-  //logs inputed row
+  //logs inputted row
   intArray = [];
   //converts arrayRow into integer arry
   intArray = arrayRow.map(Number);
@@ -57,21 +57,21 @@ for (i = 0; i < adjacencyArray.length; i++) {
   sum = adjacencyArray[i].reduce((currentTotal, currentValue) => {
     return currentValue + currentTotal;
   }, 0);
-  //checks if the degrees' sum is odd and if so marks it as not eulerian
+  //checks if the degrees' sum is odd and if so marks it as not Eulerian
   if (sum % 2 == 1) {
     eulerian = false;
     break;
   }
 }
-//if graph is not eulerian
+//if graph is not Eulerian
 if (eulerian == false) {
   //tells the user the graph is not eulerian
   console.log("The graph you have given is not Eulerian.");
-  //if the graph is eulerian
+  //if the graph is Eulerian
 } else {
-  //tells the user the graph is eulerian
+  //tells the user the graph is Eulerian
   console.log("The graph you have given is Eulerian!");
-  //tells the user they should expect the eulerian circuit
+  //tells the user they should expect the Eulerian circuit
   console.log("Here is the Eulerian circuit:");
   //continues algorithm until continueAlgorithm is marked false
   while (continueAlgorithm) {
@@ -86,7 +86,7 @@ if (eulerian == false) {
     adjacencyArray[nodeToAdd][currentRow] -= 1;
 
     //adding visited nodes to circuit
-    //checks if the staring node has changed as in Hierholzers algorithm
+    //checks if the staring node has changed as in Hierholzer's algorithm
     if (startingNodeChanged) {
       //finds the index so that the next node can be inserted after the starting node
       insertPlace = eulerianCircuit.findIndex(function (insertElement) {
@@ -96,18 +96,18 @@ if (eulerian == false) {
       eulerianCircuit.splice(insertPlace + 1, 0, nodeToAdd + 1);
       //if the starting node didn't change
     } else {
-      //adds the node after the last node that was added to eulerian circuit
+      //adds the node after the last node that was added to Eulerian circuit
       eulerianCircuit.splice(previousNode + 1, 0, nodeToAdd + 1);
     }
-    //gets all indexes of the last node to bee added to eulerian circuit
+    //gets all indexes of the last node to be added to Eulerian circuit
     function getAllIndexes(arr, val) {
       //stores the indexes
       var indexes = [],
         //stores the iterator
         i;
-      //iterates through eulerian circuit
+      //iterates through Eulerian circuit array
       for (i = 0; i < arr.length; i++) {
-        //checks if the last node to be added to eulerian circuit is equal to the eulerian circuit at index i
+        //checks if the last node to be added to Eulerian circuit array is equal to the Eulerian circuit at index i
         if (arr[i] === val) {
           //adds index to array of indexes
           indexes.push(i);
@@ -120,11 +120,11 @@ if (eulerian == false) {
     //Creates an array with all previous indexes
     previousNodeIndexes = getAllIndexes(eulerianCircuit, nodeToAdd + 1);
 
-    //if the there have been multiple nodes added to the eulerian circuit with the same value
+    //if the there have been multiple nodes added to the Eulerian circuit with the same value
     if (previousNodeIndexes.length > 1) {
       //determines the correct index of the last node added
       previousNode = previousNodeIndexes[previousNodeIndexes.length - 2];
-      //if the there have not been multiple nodes added to the eulerian circuit with the same value
+      //if the there have not been multiple nodes added to the Eulerian circuit with the same value
     } else {
       //determines the correct index of the last node added
       previousNode = eulerianCircuit.indexOf(nodeToAdd + 1);
@@ -133,7 +133,7 @@ if (eulerian == false) {
     currentRow = nodeToAdd;
 
     //When the circuit comes back to the starting node we find a new starting node as in Hierholzer's algorithm
-    //if the node to add came back to the start
+    //if the node to add came back to the starting node
     if (nodeToAdd == startingNode) {
       //iterates through adjacency matrix
       for (i = 0; i < adjacencyArray.length; i++) {
