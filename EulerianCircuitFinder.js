@@ -26,9 +26,24 @@ previousNodeIndexes = [];
 availableStartingNodes = [];
 //is true after a new staring node is found
 startNodeFound = false;
+//is false if matrix has non-numeric values
+containsOnlyNumbers = true;
+//is true when matrix is incorrectly inputed
+incorrectLength = true;
 
-// Obtaining number of nodes in order to iterate through matrix creation properly
-numberOfNodes = parseInt(prompt("Enter number of nodes in given graph"));
+// Obtains number of nodes in order to iterate through matrix creation properly
+stringNumberOfNodes = prompt(
+  "Enter number of nodes in given graph as a digit. Example: 4"
+);
+//Error checking if a didgit is not entered
+if (isNaN(stringNumberOfNodes)) {
+  //alerts user of invalid input
+  alert(
+    "Error: Contains non-numeric values. Please refresh and enter the number of nodes as a digit"
+  );
+}
+//converting number of nodes to an integer
+numberOfNodes = parseInt(stringNumberOfNodes);
 
 //Creation of adjacency matrix
 //iterates through the number of nodes
@@ -41,12 +56,68 @@ for (i = 1; i <= numberOfNodes; i++) {
   );
   //splits input into array format elements are strings
   arrayRow = nextRowInput.split(" ");
-  //logs inputted row
+  //error handling
+  //sends arrayRow to be checked if it contatins only numeric values
+  if (!arrayContainsOnlyNumbers(arrayRow)) {
+    //notifies user of invalid input
+    alert(
+      "Error: Matrix contains non-numeric values. Please refresh and enter a valid adjacency matrix"
+    );
+    //sets to false for error handling
+    containsOnlyNumbers = false;
+    //breaks out of for loop
+    break;
+  }
+  //error handling
+  //sends arrayRow to be checked if length is correct
+  if (matrixLengthIncorrect(arrayRow)) {
+    //notifies user of invalid input
+    alert(
+      "The matrix you have entered does not correspond to the number of nodes in the graph. Please refresh the page and start again."
+    );
+    //set to true to prevent incorrect output later
+    incorrectLength = true;
+    //breaks out of for loop
+    break;
+  } else {
+    incorrectLength = false;
+  }
+  //creates variable for integer array
   intArray = [];
   //converts arrayRow into integer arry
   intArray = arrayRow.map(Number);
   //adds row to adjacency matrix
   adjacencyArray.push(intArray);
+}
+
+//checks if array is only made up of digits
+function arrayContainsOnlyNumbers(arr) {
+  //iterates through array
+  for (let i = 0; i < arr.length; i++) {
+    //checks if element is not a number
+    if (isNaN(arr[i])) {
+      //returns false if element is not a number
+      return false;
+    }
+  }
+  //returns true if element contains only numbers
+  return true;
+}
+
+// Error checks to see if the matrix has the righ number of values
+function matrixLengthIncorrect(arr) {
+  for (let i = 0; i < arr.length; i++) {
+    //compares length of array in matrix to the number of nodes
+    if (arr[i].length != numberOfNodes) {
+      //returns false because of incorrect node degree
+      return false;
+      //breaks for loop when incorrect node degrees are found
+      break;
+    } else {
+      //returns true because of correct node degree
+      return true;
+    }
+  }
 }
 
 // finds the degree of each node according to relative row in matrix
@@ -60,140 +131,144 @@ for (i = 0; i < adjacencyArray.length; i++) {
   //checks if the degrees' sum is odd and if so marks it as not Eulerian
   if (sum % 2 == 1) {
     eulerian = false;
+    //breaks for loop if the node degree (sum of line in array) is odd
     break;
   }
 }
-//if graph is not Eulerian
-if (eulerian == false) {
-  //tells the user the graph is not eulerian
-  console.log("The graph you have given is not Eulerian.");
-  //if the graph is Eulerian
-} else {
-  //tells the user the graph is Eulerian
-  console.log("The graph you have given is Eulerian!");
-  //tells the user they should expect the Eulerian circuit
-  console.log("Here is the Eulerian circuit:");
-  //continues algorithm until continueAlgorithm is marked false
-  while (continueAlgorithm) {
-    //finds the node to add that will be "visited" in the eulerian circuit
-    nodeToAdd = adjacencyArray[currentRow].findIndex(function (degree) {
-      //visits the first node with a degree greater than zero
-      return degree > 0;
-    });
-    //adjusts the matrix once nodes are visited, lowering the degree of the node
-    adjacencyArray[currentRow][nodeToAdd] -= 1;
-    //adjusts the matrix once nodes are visited, lowering the degree of the node on the corresponding node
-    adjacencyArray[nodeToAdd][currentRow] -= 1;
-
-    //adding visited nodes to circuit
-    //checks if the staring node has changed as in Hierholzer's algorithm
-    if (startingNodeChanged) {
-      //finds the index so that the next node can be inserted after the starting node
-      insertPlace = eulerianCircuit.findIndex(function (insertElement) {
-        return insertElement == startingNode + 1;
+//prevents incorrect output in case of invalid matrix
+if (containsOnlyNumbers && incorrectLength == false) {
+  //if graph is not Eulerian
+  if (eulerian == false) {
+    //tells the user the graph is not eulerian
+    console.log("The graph you have given is not Eulerian.");
+    //if the graph is Eulerian
+  } else {
+    //tells the user the graph is Eulerian
+    console.log("The graph you have given is Eulerian!");
+    //tells the user they should expect the Eulerian circuit
+    console.log("Here is the Eulerian circuit:");
+    //continues algorithm until continueAlgorithm is marked false
+    while (continueAlgorithm) {
+      //finds the node to add that will be "visited" in the eulerian circuit
+      nodeToAdd = adjacencyArray[currentRow].findIndex(function (degree) {
+        //visits the first node with a degree greater than zero
+        return degree > 0;
       });
-      //adds next node to proper place after new starting node to eulerian circuit
-      eulerianCircuit.splice(insertPlace + 1, 0, nodeToAdd + 1);
-      //if the starting node didn't change
-    } else {
-      //adds the node after the last node that was added to Eulerian circuit
-      eulerianCircuit.splice(previousNode + 1, 0, nodeToAdd + 1);
-    }
-    //gets all indexes of the last node to be added to Eulerian circuit
-    function getAllIndexes(arr, val) {
-      //stores the indexes
-      var indexes = [],
-        //stores the iterator
-        i;
-      //iterates through Eulerian circuit array
-      for (i = 0; i < arr.length; i++) {
-        //checks if the last node to be added to Eulerian circuit array is equal to the Eulerian circuit at index i
-        if (arr[i] === val) {
-          //adds index to array of indexes
-          indexes.push(i);
-        }
+      //adjusts the matrix once nodes are visited, lowering the degree of the node
+      adjacencyArray[currentRow][nodeToAdd] -= 1;
+      //adjusts the matrix once nodes are visited, lowering the degree of the node on the corresponding node
+      adjacencyArray[nodeToAdd][currentRow] -= 1;
+
+      //adding visited nodes to circuit
+      //checks if the staring node has changed as in Hierholzer's algorithm
+      if (startingNodeChanged) {
+        //finds the index so that the next node can be inserted after the starting node
+        insertPlace = eulerianCircuit.findIndex(function (insertElement) {
+          return insertElement == startingNode + 1;
+        });
+        //adds next node to proper place after new starting node to eulerian circuit
+        eulerianCircuit.splice(insertPlace + 1, 0, nodeToAdd + 1);
+        //if the starting node didn't change
+      } else {
+        //adds the node after the last node that was added to Eulerian circuit
+        eulerianCircuit.splice(previousNode + 1, 0, nodeToAdd + 1);
       }
-      //returns array of indexes
-      return indexes;
-    }
-
-    //Creates an array with all previous indexes
-    previousNodeIndexes = getAllIndexes(eulerianCircuit, nodeToAdd + 1);
-
-    //if the there have been multiple nodes added to the Eulerian circuit with the same value
-    if (previousNodeIndexes.length > 1) {
-      //determines the correct index of the last node added
-      previousNode = previousNodeIndexes[previousNodeIndexes.length - 2];
-      //if the there have not been multiple nodes added to the Eulerian circuit with the same value
-    } else {
-      //determines the correct index of the last node added
-      previousNode = eulerianCircuit.indexOf(nodeToAdd + 1);
-    }
-    //sets the next current row to the node we went to
-    currentRow = nodeToAdd;
-
-    //When the circuit comes back to the starting node we find a new starting node as in Hierholzer's algorithm
-    //if the node to add came back to the starting node
-    if (nodeToAdd == startingNode) {
-      //iterates through adjacency matrix
-      for (i = 0; i < adjacencyArray.length; i++) {
-        //finds the degree of the node
-        sum = adjacencyArray[i].reduce((currentTotal, currentValue) => {
-          return currentValue + currentTotal;
-        }, 0);
-        //Checks if degree is greater than zero
-        if (sum > 0) {
-          //adds the available node to availableStartingNodes array
-          availableStartingNodes.push(i);
+      //gets all indexes of the last node to be added to Eulerian circuit
+      function getAllIndexes(arr, val) {
+        //stores the indexes
+        var indexes = [],
+          //stores the iterator
+          i;
+        //iterates through Eulerian circuit array
+        for (i = 0; i < arr.length; i++) {
+          //checks if the last node to be added to Eulerian circuit array is equal to the Eulerian circuit at index i
+          if (arr[i] === val) {
+            //adds index to array of indexes
+            indexes.push(i);
+          }
         }
+        //returns array of indexes
+        return indexes;
       }
-      //finds a new starting node from available nodes
-      //iterates through available starting nodes
-      for (i = 0; i < availableStartingNodes.length; i++) {
-        //iterates through eulerianCircuit
-        for (j = 0; j < eulerianCircuit.length; j++) {
-          //checks if the available starting nodes are to be found in the eulerianCircuit
-          if (availableStartingNodes[i] == eulerianCircuit[j]) {
-            //if one is found, it is assigned to be the new staring node
-            startingNode = availableStartingNodes[i];
-            //startNode found is marked as true
-            startNodeFound = true;
-            //breaks first for loop
+
+      //Creates an array with all previous indexes
+      previousNodeIndexes = getAllIndexes(eulerianCircuit, nodeToAdd + 1);
+
+      //if the there have been multiple nodes added to the Eulerian circuit with the same value
+      if (previousNodeIndexes.length > 1) {
+        //determines the correct index of the last node added
+        previousNode = previousNodeIndexes[previousNodeIndexes.length - 2];
+        //if the there have not been multiple nodes added to the Eulerian circuit with the same value
+      } else {
+        //determines the correct index of the last node added
+        previousNode = eulerianCircuit.indexOf(nodeToAdd + 1);
+      }
+      //sets the next current row to the node we went to
+      currentRow = nodeToAdd;
+
+      //When the circuit comes back to the starting node we find a new starting node as in Hierholzer's algorithm
+      //if the node to add came back to the starting node
+      if (nodeToAdd == startingNode) {
+        //iterates through adjacency matrix
+        for (i = 0; i < adjacencyArray.length; i++) {
+          //finds the degree of the node
+          sum = adjacencyArray[i].reduce((currentTotal, currentValue) => {
+            return currentValue + currentTotal;
+          }, 0);
+          //Checks if degree is greater than zero
+          if (sum > 0) {
+            //adds the available node to availableStartingNodes array
+            availableStartingNodes.push(i);
+          }
+        }
+        //finds a new starting node from available nodes
+        //iterates through available starting nodes
+        for (i = 0; i < availableStartingNodes.length; i++) {
+          //iterates through eulerianCircuit
+          for (j = 0; j < eulerianCircuit.length; j++) {
+            //checks if the available starting nodes are to be found in the eulerianCircuit
+            if (availableStartingNodes[i] == eulerianCircuit[j]) {
+              //if one is found, it is assigned to be the new staring node
+              startingNode = availableStartingNodes[i];
+              //startNode found is marked as true
+              startNodeFound = true;
+              //breaks first for loop
+              break;
+            }
+          }
+          if (startNodeFound) {
+            //breaks second for loop
             break;
           }
         }
-        if (startNodeFound) {
-          //breaks second for loop
+        // empties availableStartingNodes so that it will not interfere the next time a new starting node is needed
+        while (availableStartingNodes.length > 0) {
+          availableStartingNodes.pop();
+        }
+        //makes the next row to go to in adjacencyArray the starting node as each row represents a node
+        currentRow = startingNode;
+        //marks startingNodeChanged so that nodes will be added in at the proper index in the next iteration
+        startingNodeChanged = true;
+        //if the node to add did not come back to the start
+      } else {
+        //the starting node is not changed
+        startingNodeChanged = false;
+      }
+      //Checks if algoritm is finished
+      //iterates through adjacencyArray by row
+      for (i = 0; i < adjacencyArray.length; i++) {
+        //if one element in the row at i is greater than zero continueAlgorithm is true
+        continueAlgorithm = adjacencyArray[i].some((element) => {
+          return element > 0;
+        });
+        // once continue algorithm is true
+        if (continueAlgorithm == true) {
+          //we automatically return to the next step in the algorithm
           break;
         }
       }
-      // empties availableStartingNodes so that it will not interfere the next time a new starting node is needed
-      while (availableStartingNodes.length > 0) {
-        availableStartingNodes.pop();
-      }
-      //makes the next row to go to in adjacencyArray the starting node as each row represents a node
-      currentRow = startingNode;
-      //marks startingNodeChanged so that nodes will be added in at the proper index in the next iteration
-      startingNodeChanged = true;
-      //if the node to add did not come back to the start
-    } else {
-      //the starting node is not changed
-      startingNodeChanged = false;
     }
-    //Checks if algoritm is finished
-    //iterates through adjacencyArray by row
-    for (i = 0; i < adjacencyArray.length; i++) {
-      //if one element in the row at i is greater than zero continueAlgorithm is true
-      continueAlgorithm = adjacencyArray[i].some((element) => {
-        return element > 0;
-      });
-      // once continue algorithm is true
-      if (continueAlgorithm == true) {
-        //we automatically return to the next step in the algorithm
-        break;
-      }
-    }
+    //logs complete eulerian circuit to console
+    console.log(eulerianCircuit);
   }
-  //logs complete eulerian circuit to console
-  console.log(eulerianCircuit);
 }
